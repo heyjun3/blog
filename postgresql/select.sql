@@ -43,8 +43,40 @@ SELECT
 FROM
     exam
 WHERE
-    student_id = '914a47da-1974-4e23-a012-bc9397d2e073'
+    student_id = '01ce6220-5a58-47d0-90b7-d75d5082cc99'
 ORDER BY
     scoring_date DESC
 LIMIT
     1;
+
+SELECT
+    ex.student_id,
+    ex.scoring_date,
+    ex.VALUE
+FROM
+    (
+        SELECT
+            student_id,
+            scoring_date,
+            VALUE,
+            ROW_NUMBER() OVER (
+                PARTITION BY
+                    student_id
+                ORDER BY
+                    scoring_date DESC
+            ) AS RANK
+        FROM
+            exam
+    ) ex
+WHERE
+    RANK = 1;
+
+SELECT DISTINCT
+    ON (student_id) student_id,
+    scoring_date,
+    VALUE
+FROM
+    exam
+ORDER BY
+    student_id,
+    scoring_date DESC;
