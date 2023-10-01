@@ -80,3 +80,29 @@ FROM
 ORDER BY
     student_id,
     scoring_date DESC;
+
+CREATE INDEX idx_student_id_and_scoring_date ON exam (student_id, scoring_date DESC)
+
+EXPLAIN
+ANALYZE
+SELECT DISTINCT
+    ON (student_id) student_id,
+    scoring_date,
+    VALUE
+FROM
+    exam
+WHERE
+    (student_id, scoring_date) IN (
+        SELECT
+            student_id,
+            MAX(scoring_date)
+        FROM
+            exam
+        GROUP BY
+            student_id
+    )
+
+ORDER BY
+    student_id,
+    scoring_date,
+    VALUE DESC;

@@ -3,7 +3,7 @@ WITH
         SELECT
             gen_random_uuid () AS id
         FROM
-            GENERATE_SERIES(1, 100)
+            GENERATE_SERIES(1, 1000)
     )
 INSERT INTO
     exam (student_id, scoring_date, VALUE)
@@ -13,4 +13,4 @@ SELECT
     (RANDOM() * 100)::INT
 FROM
     student,
-    GENERATE_SERIES(1, 100);
+    GENERATE_SERIES(1, 1000);
