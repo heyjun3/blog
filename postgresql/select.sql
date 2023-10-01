@@ -81,7 +81,7 @@ ORDER BY
     student_id,
     scoring_date DESC;
 
-CREATE INDEX idx_student_id_and_scoring_date ON exam (student_id, scoring_date DESC)
+CREATE INDEX idx_student_id_and_scoring_date ON exam (student_id, scoring_date DESC);
 
 EXPLAIN
 ANALYZE
@@ -101,8 +101,101 @@ WHERE
         GROUP BY
             student_id
     )
-
 ORDER BY
     student_id,
     scoring_date,
     VALUE DESC;
+
+WITH
+    latest AS (
+        SELECT DISTINCT
+            ON (student_id) id
+        FROM
+            exam
+        WHERE
+            (student_id, scoring_date) IN (
+                SELECT
+                    student_id,
+                    MAX(scoring_date)
+                FROM
+                    exam
+                GROUP BY
+                    student_id
+            )
+        ORDER BY
+            student_id,
+            scoring_date,
+            VALUE
+    )
+SELECT DISTINCT
+    ON (student_id) student_id,
+    scoring_date,
+    VALUE
+FROM
+    exam
+WHERE
+    (student_id, scoring_date) IN (
+        SELECT
+            student_id,
+            MAX(scoring_date)
+        FROM
+            exam
+        WHERE
+            id NOT IN (
+                SELECT
+                    id
+                FROM
+                    latest
+            )
+        GROUP BY
+            student_id
+    )
+ORDER BY
+    student_id,
+    scoring_date,
+    VALUE;
+
+EXPLAIN
+ANALYZE
+SELECT
+    student_id,
+    array_value[1],
+    array_value[2]
+FROM
+    (
+        SELECT
+            student_id,
+            ARRAY_AGG(
+                VALUE
+                ORDER BY
+                    scoring_date DESC
+            ) AS array_value
+        FROM
+            exam
+        GROUP BY
+            student_id
+    ) tmp;
+
+CREATE MATERIALIZED VIEW
+    exam_view AS
+SELECT
+    student_id,
+    ARRAY_AGG(
+        VALUE
+        ORDER BY
+            scoring_date DESC
+    ) AS array_value
+FROM
+    exam
+GROUP BY
+    student_id
+;
+
+EXPLAIN
+ANALYZE
+SELECT
+    student_id,
+    array_value[1],
+    array_value[2]
+FROM
+    exam_view;

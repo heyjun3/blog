@@ -3,7 +3,7 @@ WITH
         SELECT
             gen_random_uuid () AS id
         FROM
-            GENERATE_SERIES(1, 1000)
+            GENERATE_SERIES(1, 10000)
     )
 INSERT INTO
     exam (student_id, scoring_date, VALUE)
