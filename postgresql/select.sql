@@ -160,7 +160,8 @@ ANALYZE
 SELECT
     student_id,
     array_value[1],
-    array_value[2]
+    array_value[2],
+    array_value[3]
 FROM
     (
         SELECT
@@ -188,14 +189,14 @@ SELECT
 FROM
     exam
 GROUP BY
-    student_id
-;
+    student_id;
 
 EXPLAIN
 ANALYZE
 SELECT
     student_id,
     array_value[1],
-    array_value[2]
+    array_value[2],
+    array_value[3]
 FROM
     exam_view;
